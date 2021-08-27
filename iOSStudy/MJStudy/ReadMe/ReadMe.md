@@ -2,6 +2,14 @@
 
 ### day1要点
 
+#### 简述
+
+
+
+
+
+#### 注意点
+
 1. `xcrun -sdk iphoneos clang -arch arm64 -rewrite-objc main.m -o main.cpp；`这是`oc`转`c++`转换命令
 2. 在64位系统中，指针是8个字节；为什么呢？因为指针指向的是地址，而想要指向所有地址，指针必须是64位；
 3. <font color='pink'><u>为什么Student的getInstanceSize和malloc_size会出现差别呢?如果因为最小16个字节的原因，那么大于16的时候应该是相同的，然而并不是</u>。</font><font color='orange'>答案在day2要点->知识点3</font>
@@ -27,7 +35,7 @@
 5. sizeof是运算符，不是函数。
 6. <font color='pink'>类对象和元类对象都是class，他们的结构是一样的，那么类对象中是否有一个结构是元类方法列表呢？在学习方法列表的时候多注意一下；</font><font color='orange'>并不是，他俩的存储位置应该是一样的，只是一个表示的是对象方法，一个表示的是类方法。</font>
 7. `class_isMetaClass`的原理应该是在`isa_t`的结构中存有`metaclass`的`flag`标记；
-8. objc_getClass, ojbect_getClass, class可以从源码的角度来看这三者的区别；
+8. <font color='orange'>objc_getClass, ojbect_getClass, class可以从源码的角度来看这三者的区别；</font>
 9. gnu内存分配，malloc_alignment<font color='orange'>十五节</font>
 
 
@@ -97,11 +105,65 @@ uint32_t unalignedInstanceSize() {
 }
 ```
 
+5. object_getClass、objc_getClass和class方法
+
+```objective-c
+/*
+1. class方法：类对象的class方法返回自己；实例对象的class方法是获取object_getClass方法；
+2. object_getClass方法：获取入参的isa指针所指向的对象；
+	a. 如果入参obj是实例对象，那么返回的是类对象；
+	b. 如果入参obj是类对象，那么返回的是元类对象；
+	c. 如果入参obj是元类对象，那么返回的是NSObject根元类对象；
+3. objc_getClass方法：根据给出的字符串在加载的类中去查找和字符串匹配的类，如果找到就返回对象的类，如果没有找到就返回nil；
+*/
+
+// class
++ (Class)class {
+    return self;
+}
+
+- (Class)class {
+    return object_getClass(self);
+}
+
+
+// object_getClass
+Class object_getClass(id obj)
+{
+    if (obj) return obj->getIsa();
+    else return Nil;
+}
+
+// objc_getClass
+Class objc_getClass(const char *aClassName)
+{
+    if (!aClassName) return Nil;
+
+    // NO unconnected, YES class handler
+    return look_up_class(aClassName, NO, YES);
+}
+
+```
+
+
+
+
+
 
 
 ### day3要点--isa和superClass
 
-1. isa和superclass
+#### 简述
+
+1. 今天主要是根据图片来讲解isa和superClass在oc中的继承关系, 以及在发送消息时的运行流程; 
+
+   <img src="/Users/humour/Documents/Project/XXStudy/iOSStudy/MJStudy/ReadMe/day3_isa_superClass.jpeg" alt="day3_isa_superClass" style="zoom:80%;" />
+
+
+
+#### 注意点
+
+1. isa和superclass; 
 
 2. 一般后缀名是_t表示的是table；
 
