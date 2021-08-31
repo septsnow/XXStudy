@@ -19,7 +19,7 @@ int main(int argc, const char * argv[]) {
         
         [p addObserver:observe forKeyPath:@"age" options:NSKeyValueObservingOptionNew context:NULL];
         
-        p.age = 10;
+        [p setValue:@(10) forKey:@"age"];
         
         
     }

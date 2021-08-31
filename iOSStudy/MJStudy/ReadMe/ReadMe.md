@@ -274,19 +274,46 @@ KVO原理:
 
 
 
-### day5要点--KVO&Category
+### day5要点--KVC&Category
 
 #### 简述
 
-##### KVC设值原理
+##### KVC_set原理
+
+<font color='orange'>赋值操作会触发KVO操作</font>
+
+![day05_KVC_set](ReadMe.assets/day05_KVC_set.png)
+
+```objective-c
+1. 首先会查找setKey, _setKey方法, 如果成功, 则直接调用;
+2. 没找到方法, 则会检查+ (BOOL)accessInstanceVariablesDirectly方法是否允许访问成员变量;
+3. 如果不可以访问则直接进行- (void)setValue:(id)value forUndefinedKey:(NSString *)key(如果存在的话);
+4. 如果可以访问成员变量, 则按照_key, _isKey, key, isKey顺序查找变量, 找到直接赋值;
+5. 找不到则执行- (void)setValue:(id)value forUndefinedKey:(NSString *)key(如果存在的话);
+
+```
+
+
+
+##### KVC_get原理
+
+![day05_KVC_get](ReadMe.assets/day05_KVC_get.png)
 
 
 
 
 
+```objective-c
+1. 首先会查找getKey, key, _isKey, _key方法, 如果成功, 则直接调用;
+2. 没找到方法, 则会检查+ (BOOL)accessInstanceVariablesDirectly方法是否允许访问成员变量;
+3. 如果不可以访问则直接进行- (id)valueForUndefinedKey:(NSString *)keykey(如果存在的话);
+4. 如果可以访问成员变量, 则按照_key, _isKey, key, isKey顺序查找变量, 找到直接获取;
+5. 找不到则执行- (id)valueForUndefinedKey:(NSString *)key(如果存在的话);
+```
 
 
 
+##### Category
 
 
 
